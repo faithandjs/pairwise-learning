@@ -1,0 +1,19 @@
+metric,value
+nodes with elevation,100.0%
+segments with a gradient,98.3%
+bridge/tunnel segments with gradient ignored,152
+bridge/tunnel length with gradient ignored (m),3134.0
+segments STILL steeper than 20% after that (check these),131
+segments where method B fell back to method A,72
+ways with an odd shape (no windowed gradient): segments,72
+median segment length (m),5.9
+share of segments shorter than 10 m,68%
+length share steeper than 1 in 20 (method A),3.7%
+length share steeper than 1 in 20 (method B),3.1%
+length share steeper than 1 in 12 (method B),1.4%
+segments where A and B disagree on 'steep',5.0%
+gradient percentile 50 (method B),0.77%
+gradient percentile 90 (method B),3.74%
+gradient percentile 95 (method B),6.31%
+gradient percentile 99 (method B),26.85%
+segments with a numeric OSM incline tag,0

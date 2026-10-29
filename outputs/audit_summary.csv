@@ -1,0 +1,19 @@
+metric,value
+study-area segments,8890
+network length (km),101.61
+steps: segments,106
+steps: ways (distinct flights),73
+steps: length (m),489.2
+steps: ways with step_count tag,35 of 73
+incline tag: share of length,0.4%
+surface tag: share of length,79.2%
+wheelchair tag: share of length,0.8%
+smoothness tag: share of length,1.3%
+wheelchair tag values,"{'yes': np.int64(121), 'no': np.int64(7)}"
+crossing ways (footway=crossing),238
+nodes scanned inside bounding box,37520
+nodes with a kerb tag,392
+kerb tag values,"{'lowered': np.int64(290), 'raised': np.int64(87), 'flush': np.int64(15)}"
+crossing nodes (highway=crossing),502
+crossing type values,"{'unmarked': np.int64(254), 'traffic_signals': np.int64(158), 'uncontrolled': np.int64(34), 'marked': np.int64(16), 'informal': np.int64(11), 'zebra': np.int64(10)}"
+nodes with tactile_paving tag,761

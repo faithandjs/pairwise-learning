@@ -1,0 +1,25 @@
+# Python environment and caches
+.venv/
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+
+# macOS and editor files
+.DS_Store
+.vscode/
+
+# Secrets
+.env
+
+# Data: too big for GitHub and can be re-downloaded or rebuilt (folders kept via .gitkeep)
+data/raw/*
+data/interim/*
+!data/raw/.gitkeep
+!data/interim/.gitkeep
+
+# Safety net: never commit big geodata files, wherever they end up
+*.pbf
+*.tif
+*.tiff
+*.asc
+*.gpkg
