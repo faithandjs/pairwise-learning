@@ -62,7 +62,7 @@ def main():
     edges.loc[edges["steps_is_steps"], "steep_len_b_m"] = 0.0
 
     cols = ["id", "u", "v", "highway", "length_m", "grade_a", "grade_b", "grade_reliable",
-            "on_structure", "gradient_status",
+            "on_structure", "gradient_status", "grade_b_raw",
             "steep_len_b_m", "very_steep_b", "steps_is_steps", "steps_length_m", "step_count_tag",
             "is_crossing", "kerb_status", "kerb_units", "kerb_raised_known", "incline_abs", "geometry"]
     seg = edges[[c for c in cols if c in edges.columns]].rename(columns={"steep_len_b_m": "steep_len_m"})

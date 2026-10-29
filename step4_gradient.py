@@ -174,9 +174,18 @@ def main():
             s = edges[col].astype("string").str.lower()
             on_struct |= (s.notna() & ~s.isin(["no", "false", "0", ""])).fillna(False).astype(bool)
     edges["on_structure"] = on_struct
+    edges["grade_b_raw"] = edges["grade_b"]          # untouched copy, kept for traceability
     edges.loc[on_struct, ["grade_a", "grade_b"]] = np.nan
-    edges["gradient_status"] = np.where(on_struct, "excluded_bridge_or_tunnel",
-                                        np.where(edges["grade_b"].notna(), "measured", "no_elevation"))
+
+    # Gradient ceiling: a gradient above this is treated as a data error, so it becomes "unknown"
+    # (not counted as steep). Set GRADIENT_CEILING in config.py; 0.20 means 20 %.
+    ceiling = getattr(config, "GRADIENT_CEILING", 0.20)
+    implausible = (edges["grade_b"] > ceiling).fillna(False).astype(bool)
+    edges.loc[implausible, ["grade_a", "grade_b"]] = np.nan
+    edges["gradient_status"] = np.select(
+        [on_struct, implausible, edges["grade_b"].notna()],
+        ["excluded_bridge_or_tunnel", "excluded_implausible", "measured"],
+        default="no_elevation")
 
     edges["steep_len_b_m"] = np.where(edges["grade_b"] > config.STEEP, edges["length_m"], 0.0)
     edges["very_steep_b"] = edges["grade_b"] > config.VERY_STEEP
@@ -193,7 +202,8 @@ def main():
         "segments with a gradient": f"{ok.mean():.1%}",
         "bridge/tunnel segments with gradient ignored": int(on_struct.sum()),
         "bridge/tunnel length with gradient ignored (m)": round(float(L[on_struct].sum()), 0),
-        "segments STILL steeper than 20% after that (check these)": int((edges["grade_b"] > 0.20).sum()),
+        f"segments set to unknown by the gradient ceiling (above {ceiling:.0%})": int(implausible.sum()),
+        "length set to unknown by the gradient ceiling (m)": round(float(L[implausible].sum()), 0),
         "segments where method B fell back to method A": int(edges["grade_b_fallback"].sum()),
         "ways with an odd shape (no windowed gradient): segments": n_fallback,
         "median segment length (m)": round(L.median(), 1),

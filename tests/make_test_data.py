@@ -10,6 +10,7 @@ Known truth in the synthetic data:
   - 4 crossings: lowered/lowered (ok), flush/lowered (ok), raised/lowered (raised), no kerb tags (unknown)
   - DTM noise of 0.1 m (standard deviation) and a no-data hole in one corner
 """
+import config
 import sys
 from pathlib import Path
 
@@ -20,7 +21,6 @@ from pyproj import Transformer
 from rasterio.transform import from_origin
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-import config
 
 N = 60                      # sub-segments per street block (about 5 m each)
 NB = 5                      # blocks in each direction
@@ -48,19 +48,33 @@ def way(nodes, tags):
     return wid[0] - 1
 
 
-# east-west streets
+# east-west streets (street j=1 is tagged as a bridge; street j=5 contains a flight of steps)
 for j in range(NB + 1):
-    way([nid(a, j * N) for a in range(NB * N + 1)], {"highway": "residential"})
+    if j == 5:
+        way([nid(a, j * N) for a in range(0, 101)], {"highway": "residential"})
+        way([nid(a, j * N) for a in range(100, 111)],
+            {"highway": "steps", "step_count": "12"})
+        way([nid(a, j * N)
+            for a in range(110, NB * N + 1)], {"highway": "residential"})
+    else:
+        tags = {"highway": "residential"}
+        if j == 1:
+            tags["bridge"] = "yes"
+        way([nid(a, j * N) for a in range(NB * N + 1)], tags)
 # north-south footways (line i=2 split so one piece is steps)
 for i in range(NB + 1):
     if i == 2:
         way([nid(i * N, b) for b in range(0, N + 1)], {"highway": "footway"})
-        way([nid(i * N, b) for b in range(N, N + 11)], {"highway": "steps", "step_count": "14"})
-        way([nid(i * N, b) for b in range(N + 10, NB * N + 1)], {"highway": "footway"})
+        way([nid(i * N, b) for b in range(N, N + 11)],
+            {"highway": "steps", "step_count": "14"})
+        way([nid(i * N, b)
+            for b in range(N + 10, NB * N + 1)], {"highway": "footway"})
     else:
         way([nid(i * N, b) for b in range(NB * N + 1)], {"highway": "footway"})
 
 # crossings: three nodes each (end, middle on the road, end)
+
+
 def crossing(a_mid, j, kerb_a, kerb_b, label_id):
     lon, lat = lons[a_mid], lats[j * N]
     ids = []
@@ -82,12 +96,14 @@ crossing(150, 3, "raised", "lowered", 3)
 crossing(210, 4, None, None, 4)
 
 out = Path(config.OSM_PBF)
+if out.exists() or any(Path(config.DTM_DIR).glob("**/*.tif")):
+    raise SystemExit("Refusing to run: data/raw already contains files (possibly your real data). "
+                     "Use this script only in an empty copy of the project.")
 out.parent.mkdir(parents=True, exist_ok=True)
-if out.exists():
-    out.unlink()
 w = osmium.SimpleWriter(str(out))
 for i, lon, lat, tags in sorted(nodes_out):
-    w.add_node(osmium.osm.mutable.Node(id=i, location=(float(lon), float(lat)), tags=tags, version=1))
+    w.add_node(osmium.osm.mutable.Node(id=i, location=(
+        float(lon), float(lat)), tags=tags, version=1))
 for i, nodes, tags in sorted(ways_out):
     w.add_way(osmium.osm.mutable.Way(id=i, nodes=nodes, tags=tags, version=1))
 w.close()
@@ -108,10 +124,12 @@ dtm_dir.mkdir(parents=True, exist_ok=True)
 for name, left, right in (("a", minx, xmid), ("b", xmid, maxx)):
     w_px, h_px = int(right - left), int(maxy - miny)
     xs = left + 0.5 + np.arange(w_px)
-    z = 20 + 0.06 * (xs[None, :] - minx) + rng.normal(0, 0.1, size=(h_px, w_px))
+    z = 20 + 0.06 * (xs[None, :] - minx) + \
+        rng.normal(0, 0.1, size=(h_px, w_px))
     z = z.astype("float32")
     if name == "b":
-        z[:250, -250:] = -9999          # no-data hole in the north-east corner (rows count from the top)
+        # no-data hole in the north-east corner (rows count from the top)
+        z[:250, -250:] = -9999
     with rasterio.open(dtm_dir / f"test_tile_{name}.tif", "w", driver="GTiff", height=h_px, width=w_px, count=1,
                        dtype="float32", crs=config.PROJECTED_CRS, transform=from_origin(left, maxy, 1.0, 1.0),
                        nodata=-9999) as dst:

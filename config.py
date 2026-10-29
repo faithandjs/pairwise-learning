@@ -12,6 +12,7 @@ DTM_DIR = ROOT / "data" / "raw" / "dtm"
 DTM_PATTERNS = ["**/*.tif", "**/*.tiff", "**/*.asc"]
 # only used if a tile stores no CRS (some .asc files)
 DTM_CRS_IF_MISSING = "EPSG:27700"
+GRADIENT_CEILING = 0.20
 
 # ---- study area from the proposal (WGS84 lon/lat) ----
 WEST, SOUTH, EAST, NORTH = -2.2974, 53.4609, -2.2748, 53.4744

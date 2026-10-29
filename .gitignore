@@ -23,3 +23,6 @@ data/interim/*
 *.tiff
 *.asc
 *.gpkg
+
+#notes
+decision-logs/
