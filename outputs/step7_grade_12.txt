@@ -1,0 +1,44 @@
+PART A: each ban on its own (compare with step 6)
+
+                  profile  banned_length_pct  connected_length_pct  pairs_no_route_pct
+               steps only                0.5                  98.4                 3.0
+        raised kerbs only                0.3                  98.5                 3.3
+steeper than 1 in 12 only                0.8                  60.0                64.7
+steeper than 1 in 20 only                2.5                  41.5                85.7
+     steps + raised kerbs                0.8                  96.9                 6.3
+
+PART B: the grade_12 ban on its own: which banned segments cut the network?
+
+banned: 188 segments, 810 m
+network cut off by this ban: 38463 m (39.1% of the main network)
+10 cut-off pieces are linked by 18 banned segments; 4 pieces are 50 m or longer. Biggest first:
+
+ lost_piece_m  n_links        id     highway  length_m  grade_b_pct  grade_a_pct  grade_reliable layer      lat      lon
+      36105.1        4 669438323       trunk       8.7         13.8         20.9            True   NaN 53.46508 -2.28432
+      36105.1        4 781927758     footway      15.8         10.6         12.2            True   NaN 53.46599 -2.28421
+      36105.1        4 915363497     footway      11.8         12.7          0.6            True   NaN 53.46481 -2.28371
+      36105.1        4 951511719 residential       6.8          8.6         17.0            True   NaN 53.46514 -2.28448
+        236.6        4 365521827     footway       6.4          9.1         11.3            True   NaN 53.47313 -2.29203
+        236.6        4 365521827     footway       6.4          8.7          5.6            True   NaN 53.47315 -2.29194
+        236.6        4 365521828       steps       3.0         14.4         14.4           False   NaN 53.47318 -2.29201
+        236.6        4 365522232     footway       4.7         11.6          1.4           False   NaN 53.47226 -2.29141
+        228.2        1 977122248     footway       4.5         15.4         15.4           False   NaN 53.47145 -2.29564
+         74.0        1 896027545     footway      23.6         10.7         10.7            True   NaN 53.46841 -2.28870
+
+summary of ALL linking segments:
+  by street type: {'footway': 14, 'steps': 2, 'trunk': 1, 'residential': 1}
+  shorter than 10 m:                       78%
+  gradient measured over under 10 m:       22%
+  method A (end to end) says gentler than 1 in 20: 11%   (method A missing: 0)
+  median gradient (method B): 10.9%
+
+saved outputs/ban_diagnostic_grade_12.csv and .geojson
+
+PART C: what if the 1-in-12 gradient ban were defined differently? (steps are banned in every variant)
+
+                              profile  banned_length_pct  connected_length_pct  pairs_no_route_pct  detour_median_pct
+        current: steeper than 1 in 12                1.1                  59.0                65.3               14.9
+only where measured over 10 m or more                1.0                  59.2                64.7                9.6
+ignore above 15% (treated as unknown)                1.0                  59.0                64.7               14.6
+                 both of the last two                0.9                  59.2                64.3                9.6
+         no gradient ban (steps only)                0.5                  98.4                 3.0                0.0

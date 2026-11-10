@@ -1,0 +1,7 @@
+ban_set,profiles,n_pairs,pairs_same_piece,pairs_crossing_pieces,pairs_in_small_pieces,pairs_in_largest_piece
+grade_12+raised_kerb+steps,1,40,40,0,0,28
+raised_kerb+steps,2,40,40,0,0,40
+grade_12+steps,3,40,40,0,0,30
+steps,4,40,40,0,0,40
+grade_20+raised_kerb+steps,5,40,40,0,0,28
+none,"6, 7, 8",40,40,0,0,40

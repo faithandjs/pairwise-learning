@@ -5,6 +5,7 @@ bridge/tunnel segments with gradient ignored,152
 bridge/tunnel length with gradient ignored (m),3134.0
 segments set to unknown by the gradient ceiling (above 20%),131
 length set to unknown by the gradient ceiling (m),574.0
+segments set to unknown by the manual list,0
 segments where method B fell back to method A,72
 ways with an odd shape (no windowed gradient): segments,72
 median segment length (m),5.9

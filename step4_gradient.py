@@ -182,9 +182,13 @@ def main():
     ceiling = getattr(config, "GRADIENT_CEILING", 0.20)
     implausible = (edges["grade_b"] > ceiling).fillna(False).astype(bool)
     edges.loc[implausible, ["grade_a", "grade_b"]] = np.nan
+    # Manual list: OSM way ids whose gradient you have checked by hand and judged to be a terrain-model artefact.
+    # Set MANUAL_GRADIENT_UNKNOWN_IDS in config.py (empty by default). Applies to every segment of those ways.
+    manual = edges["id"].isin(list(getattr(config, "MANUAL_GRADIENT_UNKNOWN_IDS", []))) & ~on_struct
+    edges.loc[manual, ["grade_a", "grade_b"]] = np.nan
     edges["gradient_status"] = np.select(
-        [on_struct, implausible, edges["grade_b"].notna()],
-        ["excluded_bridge_or_tunnel", "excluded_implausible", "measured"],
+        [on_struct, manual, implausible, edges["grade_b"].notna()],
+        ["excluded_bridge_or_tunnel", "excluded_manual", "excluded_implausible", "measured"],
         default="no_elevation")
 
     edges["steep_len_b_m"] = np.where(edges["grade_b"] > config.STEEP, edges["length_m"], 0.0)
@@ -204,6 +208,7 @@ def main():
         "bridge/tunnel length with gradient ignored (m)": round(float(L[on_struct].sum()), 0),
         f"segments set to unknown by the gradient ceiling (above {ceiling:.0%})": int(implausible.sum()),
         "length set to unknown by the gradient ceiling (m)": round(float(L[implausible].sum()), 0),
+        "segments set to unknown by the manual list": int(manual.sum()),
         "segments where method B fell back to method A": int(edges["grade_b_fallback"].sum()),
         "ways with an odd shape (no windowed gradient): segments": n_fallback,
         "median segment length (m)": round(L.median(), 1),

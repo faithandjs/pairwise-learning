@@ -27,3 +27,6 @@ MIN_RELIABLE_M = 10.0  # a gradient measured over less than this is flagged as u
 # ---- folders written by the scripts ----
 INTERIM = ROOT / "data" / "interim"
 OUTPUTS = ROOT / "outputs"
+
+# //removethis
+MANUAL_GRADIENT_UNKNOWN_IDS = []
