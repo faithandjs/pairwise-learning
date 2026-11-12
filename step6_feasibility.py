@@ -21,8 +21,10 @@ import pandas as pd
 import config
 from profiles import PROFILES, banned_mask
 
-N_PAIRS = getattr(config, "N_FEASIBILITY_PAIRS", 300)   # //removethis optional: add N_FEASIBILITY_PAIRS = 500 to config.py
-MIN_SEP_M = getattr(config, "MIN_OD_SEPARATION_M", 500)  # //removethis start and end must be at least this far apart (straight line)
+# Note-> optional: add N_FEASIBILITY_PAIRS = 500 to config.py
+N_PAIRS = getattr(config, "N_FEASIBILITY_PAIRS", 300)
+# Note-> start and end must be at least this far apart (straight line)
+MIN_SEP_M = getattr(config, "MIN_OD_SEPARATION_M", 500)
 SEED = getattr(config, "RANDOM_SEED", 42)
 
 
@@ -33,7 +35,8 @@ def build_graph(seg):
             continue
         if G.has_edge(r.u, r.v) and G[r.u][r.v]["length"] <= r.length_m:
             continue  # keep the shortest of any parallel segments
-        G.add_edge(r.u, r.v, length=r.length_m, steps=r.steps_length_m, steep=r.steep_len_m, kerb=r.kerb_units)
+        G.add_edge(r.u, r.v, length=r.length_m, steps=r.steps_length_m,
+                   steep=r.steep_len_m, kerb=r.kerb_units)
     return G
 
 
@@ -73,22 +76,32 @@ def evaluate(G, pairs, base_len, full_main_len, label, n_banned_seg, n_seg, bann
         edges = [G[path[i]][path[i + 1]] for i in range(len(path) - 1)]
         L = sum(e["length"] for e in edges)
         detours.append(100 * (L / L0 - 1))
-        s, g, k = sum(e["steps"] for e in edges), sum(e["steep"] for e in edges), sum(e["kerb"] for e in edges)
-        has_steps.append(s > 0); has_steep.append(g > 0); has_kerb.append(k > 0); steep_m.append(g)
+        s, g, k = sum(e["steps"] for e in edges), sum(e["steep"]
+                                                      for e in edges), sum(e["kerb"] for e in edges)
+        has_steps.append(s > 0)
+        has_steep.append(g > 0)
+        has_kerb.append(k > 0)
+        steep_m.append(g)
     n = len(pairs)
     ok = n - no_route
     rows.update(pairs_no_route_pct=round(100 * no_route / n, 1),
-                detour_median_pct=round(float(np.median(detours)), 1) if ok else np.nan,
-                detour_p90_pct=round(float(np.percentile(detours, 90)), 1) if ok else np.nan,
-                routes_with_steps_pct=round(100 * np.mean(has_steps), 1) if ok else np.nan,
-                routes_with_steep_pct=round(100 * np.mean(has_steep), 1) if ok else np.nan,
-                routes_with_unconfirmed_kerb_pct=round(100 * np.mean(has_kerb), 1) if ok else np.nan,
+                detour_median_pct=round(
+                    float(np.median(detours)), 1) if ok else np.nan,
+                detour_p90_pct=round(
+                    float(np.percentile(detours, 90)), 1) if ok else np.nan,
+                routes_with_steps_pct=round(
+                    100 * np.mean(has_steps), 1) if ok else np.nan,
+                routes_with_steep_pct=round(
+                    100 * np.mean(has_steep), 1) if ok else np.nan,
+                routes_with_unconfirmed_kerb_pct=round(
+                    100 * np.mean(has_kerb), 1) if ok else np.nan,
                 median_steep_m=round(float(np.median(steep_m)), 1) if ok else np.nan)
     return rows
 
 
 def main():
-    seg = pd.DataFrame(gpd.read_file(config.INTERIM / "segments.gpkg").drop(columns="geometry"))
+    seg = pd.DataFrame(gpd.read_file(
+        config.INTERIM / "segments.gpkg").drop(columns="geometry"))
     nodes = gpd.read_file(config.INTERIM / "nodes.gpkg")
     nodes_xy = dict(zip(nodes["id"], zip(nodes.geometry.x, nodes.geometry.y)))
 
@@ -99,15 +112,17 @@ def main():
     print(f"network: {len(seg):,} segments, {G_full.number_of_nodes():,} nodes; main connected piece holds "
           f"{100 * full_main_len / total_len:.1f}% of the length")
     unknown_grad = seg[seg["gradient_status"] != "measured"]
-    print(f"segments with unknown gradient (never banned by a gradient ban): {len(unknown_grad):,} "
+    print(f"segments with unknown gradient (banned only for profiles with a gradient limit, see UNKNOWN_GRADIENT_BAN): {len(unknown_grad):,} "
           f"({100 * len(unknown_grad) / len(seg):.1f}% of segments, {unknown_grad['length_m'].sum():.0f} m)")
 
     candidates = [n for n in full_comp if n in nodes_xy]
     pairs = pick_pairs(nodes_xy, candidates, N_PAIRS, MIN_SEP_M, SEED)
     print(f"{len(pairs)} random start/end pairs, at least {MIN_SEP_M} m apart, seed {SEED}")
-    base_len = [nx.dijkstra_path_length(G_full, a, b, weight="length") for a, b in pairs]
+    base_len = [nx.dijkstra_path_length(
+        G_full, a, b, weight="length") for a, b in pairs]
 
-    rows = [evaluate(G_full, pairs, base_len, full_main_len, "0 none (reference)", 0, len(seg), 0.0, total_len)]
+    rows = [evaluate(G_full, pairs, base_len, full_main_len,
+                     "0 none (reference)", 0, len(seg), 0.0, total_len)]
     for k, p in PROFILES.items():
         mask = banned_mask(seg, p["bans"])
         G = build_graph(seg[~mask])

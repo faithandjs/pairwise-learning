@@ -17,9 +17,11 @@ from common import build_graphs, load_segments
 
 MAX_ROUTES = getattr(config, "N_CANDIDATES_MAX", 8)
 MIN_ROUTES = getattr(config, "N_CANDIDATES_MIN", 5)
-MAX_OVERLAP = getattr(config, "MAX_ROUTE_OVERLAP", 0.6)      # //removethis my default: a route may share up to 60% of its length
+# Note-> my default: a route may share up to 60% of its length
+MAX_OVERLAP = getattr(config, "MAX_ROUTE_OVERLAP", 0.6)
 PENALTY = getattr(config, "ROUTE_PENALTY", 1.0)
-MAX_DETOUR = getattr(config, "MAX_ROUTE_DETOUR", 1.5)        # //removethis NOT in your methodology: drops routes over 1.5x the shortest. Set to None to switch off
+# Note-> NOT in your methodology: drops routes over 1.5x the shortest. Set to None to switch off
+MAX_DETOUR = getattr(config, "MAX_ROUTE_DETOUR", 1.5)
 MAX_ITER = getattr(config, "MAX_ROUTE_ITERATIONS", 30)
 
 
@@ -64,16 +66,21 @@ def main():
                 routes = generate(G, r.origin, r.dest)
             except (nx.NodeNotFound, nx.NetworkXNoPath):
                 routes, skipped = [], skipped + 1
-            counts.append(dict(ban_set=key, od_id=r.od_id, n_routes=len(routes)))
+            counts.append(
+                dict(ban_set=key, od_id=r.od_id, n_routes=len(routes)))
             for k, rt in enumerate(routes):
                 e = list(zip(rt["path"][:-1], rt["path"][1:]))
                 rows.append(dict(ban_set=key, od_id=r.od_id, route_id=k, distance_m=round(rt["length"], 1),
-                                 steep_m=round(sum(G[u][v]["steep"] for u, v in e), 1),
-                                 steps_m=round(sum(G[u][v]["steps"] for u, v in e), 1),
-                                 kerb_units=round(sum(G[u][v]["kerb"] for u, v in e), 3),
+                                 steep_m=round(sum(G[u][v]["steep"]
+                                               for u, v in e), 1),
+                                 steps_m=round(sum(G[u][v]["steps"]
+                                               for u, v in e), 1),
+                                 kerb_units=round(
+                                     sum(G[u][v]["kerb"] for u, v in e), 3),
                                  nodes=" ".join(map(str, rt["path"]))))
     if skipped:
-        print(f"WARNING: {skipped} pair/profile combinations had no route. Re-run step 8 after any change to steps 4-5.")
+        print(
+            f"WARNING: {skipped} pair/profile combinations had no route. Re-run step 8 after any change to steps 4-5.")
     cand, cnt = pd.DataFrame(rows), pd.DataFrame(counts)
     cand.to_csv(config.OUTPUTS / "candidates.csv", index=False)
     cnt.to_csv(config.OUTPUTS / "candidate_counts.csv", index=False)
@@ -81,7 +88,8 @@ def main():
     summ = []
     for key, g in cand.groupby("ban_set"):
         n_by = cnt[cnt.ban_set == key].set_index("od_id")["n_routes"]
-        spread = g.groupby("od_id")[["distance_m", "steep_m", "steps_m", "kerb_units"]].agg(lambda s: s.max() - s.min())
+        spread = g.groupby("od_id")[["distance_m", "steep_m", "steps_m", "kerb_units"]].agg(
+            lambda s: s.max() - s.min())
         shortest = g.groupby("od_id")["distance_m"].min()
         longest = g.groupby("od_id")["distance_m"].max()
         summ.append({"ban_set": key, "pairs": len(n_by), "mean_routes": round(n_by.mean(), 1),

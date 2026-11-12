@@ -31,7 +31,7 @@ for _k, _p in PROFILES.items():
 
 
 def banned_mask(seg, bans):
-    """True for every segment this profile cannot use. Unknown gradient or unknown kerb is never banned."""
+    """True for every segment this profile cannot use. Unknown kerb is never banned. Unknown gradient is banned only for profiles with a gradient limit (see below)."""
     m = pd.Series(False, index=seg.index)
     if "steps" in bans:
         m |= seg["steps_is_steps"].astype(bool)
@@ -41,4 +41,16 @@ def banned_mask(seg, bans):
         m |= (seg["grade_b"] > config.VERY_STEEP).fillna(False).astype(bool)
     if "grade_20" in bans:
         m |= (seg["grade_b"] > config.STEEP).fillna(False).astype(bool)
+    # A profile with a gradient limit cannot be shown that an unmeasured segment is within its limit.
+    # UNKNOWN_GRADIENT_BAN (config.py) says which unknown segments such a profile bans:
+    #   "all"            every segment with unknown gradient (bridges, tunnels, above the ceiling, no elevation)
+    #   "not_structures" the same, except bridge and tunnel segments
+    #   "none"           none (unknown gradient is never banned)
+    if "grade_12" in bans or "grade_20" in bans:
+        mode = getattr(config, "UNKNOWN_GRADIENT_BAN", "all")
+        if mode in ("all", "not_structures") and "gradient_unknown" in seg:
+            unknown = seg["gradient_unknown"].astype(bool)
+            if mode == "not_structures":
+                unknown &= ~seg["on_structure"].astype(bool)
+            m |= unknown
     return m

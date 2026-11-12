@@ -17,7 +17,8 @@ import pandas as pd
 import config
 from common import build_graphs, load_segments
 
-N_PAIRS = getattr(config, "N_OD_PAIRS", 40)               # //removethis optional: N_OD_PAIRS = 80 in config.py
+# Note-> optional: N_OD_PAIRS = 80 in config.py
+N_PAIRS = getattr(config, "N_OD_PAIRS", 40)
 MIN_SEP_M = getattr(config, "MIN_OD_SEPARATION_M", 500)
 SEED = getattr(config, "RANDOM_SEED", 42)
 WALKY = {"footway", "pedestrian", "path", "residential", "service", "unclassified", "living_street", "track",
@@ -44,7 +45,8 @@ def main():
     for r in seg.itertuples():
         types.setdefault(r.u, set()).add(r.highway)
         types.setdefault(r.v, set()).add(r.highway)
-    eligible = sorted(n for n in xy if all(n in c for c in comp.values()) and types.get(n, set()) & WALKY)
+    eligible = sorted(n for n in xy if all(
+        n in c for c in comp.values()) and types.get(n, set()) & WALKY)
     print(f"{len(graphs)} different bans sets; {len(eligible):,} of {len(xy):,} nodes are present in every "
           f"profile's network and touch a walkable street")
     if len(eligible) < 2:
@@ -66,18 +68,22 @@ def main():
     rows = []
     for k, (a, b, d) in enumerate(pairs):
         rows.append(dict(od_id=k, origin=a, dest=b, straight_m=round(d, 1),
-                         shortest_m=round(nx.dijkstra_path_length(graphs["none"], a, b, weight="length"), 1),
+                         shortest_m=round(nx.dijkstra_path_length(
+                             graphs["none"], a, b, weight="length"), 1),
                          origin_lat=round(latlon[a][0], 5), origin_lon=round(latlon[a][1], 5),
                          dest_lat=round(latlon[b][0], 5), dest_lon=round(latlon[b][1], 5)))
     out = pd.DataFrame(rows)
     config.OUTPUTS.mkdir(exist_ok=True)
     out.to_csv(config.OUTPUTS / "od_pairs.csv", index=False)
-    print(f"chose {len(out)} pairs (wanted {N_PAIRS}), seed {SEED}, at least {MIN_SEP_M} m apart")
+    print(
+        f"chose {len(out)} pairs (wanted {N_PAIRS}), seed {SEED}, at least {MIN_SEP_M} m apart")
     if len(out) < N_PAIRS:
         print("WARNING: fewer pairs than wanted: the bans leave too little shared network. Tell me.")
     if len(out):
-        print(f"straight-line distance (m): min {out.straight_m.min():.0f}, median {out.straight_m.median():.0f}, max {out.straight_m.max():.0f}")
-        print(f"shortest route (m):         min {out.shortest_m.min():.0f}, median {out.shortest_m.median():.0f}, max {out.shortest_m.max():.0f}")
+        print(
+            f"straight-line distance (m): min {out.straight_m.min():.0f}, median {out.straight_m.median():.0f}, max {out.straight_m.max():.0f}")
+        print(
+            f"shortest route (m):         min {out.shortest_m.min():.0f}, median {out.shortest_m.median():.0f}, max {out.shortest_m.max():.0f}")
     print("saved outputs/od_pairs.csv (open the lat/lon columns on a map if you want to see them)")
 
 

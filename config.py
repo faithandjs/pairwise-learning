@@ -28,5 +28,7 @@ MIN_RELIABLE_M = 10.0  # a gradient measured over less than this is flagged as u
 INTERIM = ROOT / "data" / "interim"
 OUTPUTS = ROOT / "outputs"
 
-# //removethis
+# ---
 MANUAL_GRADIENT_UNKNOWN_IDS = []
+UNKNOWN_GRADIENT_BAN = "all"   # Note-> "all", "not_structures" or "none"
+N_OD_PAIRS = 80

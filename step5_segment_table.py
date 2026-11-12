@@ -58,11 +58,15 @@ def main():
         edges.loc[g.index, "kerb_units"] = (0.0 if status == "ok" else 1.0) / len(g)
     edges["kerb_raised_known"] = edges["kerb_status"] == "raised"
 
+    # ---- unknown gradient: tagged, never treated as flat or as accessible ----
+    # gradient_status is "measured" only when we have a trustworthy gradient. Everything else is unknown.
+    edges["gradient_unknown"] = edges["gradient_status"] != "measured"
+
     # Steps are already counted by the steps feature, so they add nothing to the gradient feature.
     edges.loc[edges["steps_is_steps"], "steep_len_b_m"] = 0.0
 
     cols = ["id", "u", "v", "highway", "length_m", "grade_a", "grade_b", "grade_reliable",
-            "on_structure", "gradient_status", "grade_b_raw",
+            "on_structure", "gradient_status", "gradient_unknown", "grade_b_raw",
             "steep_len_b_m", "very_steep_b", "steps_is_steps", "steps_length_m", "step_count_tag",
             "is_crossing", "kerb_status", "kerb_units", "kerb_raised_known", "incline_abs", "geometry"]
     seg = edges[[c for c in cols if c in edges.columns]].rename(columns={"steep_len_b_m": "steep_len_m"})
@@ -73,6 +77,8 @@ def main():
     print(f"segments: {len(seg):,}")
     print(f"steps: {int(seg.steps_is_steps.sum())} segments, {seg.steps_length_m.sum():.0f} m")
     print(f"gradient: {seg.steep_len_m.sum():.0f} m of {seg.length_m.sum():.0f} m steeper than 1 in 20 (method B)")
+    print(f"segments with unknown gradient: {int(seg.gradient_unknown.sum())} ({seg.loc[seg.gradient_unknown, 'length_m'].sum():.0f} m)")
+    print(seg.loc[seg.gradient_unknown, "gradient_status"].value_counts().to_string())
     print(f"crossing ways: {n_cross_ways}")
     if n_cross_ways:
         by_way = edges[edges["is_crossing"]].groupby("id")["kerb_status"].first().value_counts()

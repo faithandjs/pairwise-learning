@@ -20,16 +20,20 @@ import config
 from common import ban_key
 from profiles import PROFILES
 
-NOISE = getattr(config, "CHOICE_NOISE_LEVELS", {"low": 0.02, "medium": 0.05, "high": 0.10})   # //removethis my values; change in config.py
+NOISE = getattr(config, "CHOICE_NOISE_LEVELS", {
+                # Note-> my values; change in config.py
+                "low": 0.02, "medium": 0.05, "high": 0.10})
 SEED = getattr(config, "RANDOM_SEED", 42)
-FEATURES = {"distance": "distance_m", "gradient": "steep_m", "steps": "steps_m", "kerb": "kerb_units"}
+FEATURES = {"distance": "distance_m", "gradient": "steep_m",
+            "steps": "steps_m", "kerb": "kerb_units"}
 
 
 def main():
     cand = pd.read_csv(config.OUTPUTS / "candidates.csv")
     ref = {f: (float(cand[c].max()) or 1.0) for f, c in FEATURES.items()}
     (config.OUTPUTS / "normalisation.json").write_text(json.dumps(ref, indent=2))
-    print("reference values (feature = 1.0):", {f: round(v, 1) for f, v in ref.items()})
+    print("reference values (feature = 1.0):", {
+          f: round(v, 1) for f, v in ref.items()})
     for f, c in FEATURES.items():
         cand["x_" + f] = (cand[c] / ref[f]).clip(upper=1.0)
     xcols = ["x_" + f for f in FEATURES]
@@ -43,7 +47,8 @@ def main():
             for i in range(len(grp)):
                 for j in range(i + 1, len(grp)):
                     d = X[i] - X[j]
-                    rows.append((pid, od_id, ids[i], ids[j], *d, -float(w @ d)))
+                    rows.append(
+                        (pid, od_id, ids[i], ids[j], *d, -float(w @ d)))
     base = pd.DataFrame(rows, columns=["profile", "od_id", "route_i", "route_j"]
                         + ["dx_" + f for f in FEATURES] + ["du_true"])
 
@@ -54,7 +59,8 @@ def main():
         part["noise"], part["noise_tau"] = name, tau
         p_i = 1.0 / (1.0 + np.exp(-part["du_true"] / tau))
         part["chose_i"] = (rng.random(len(part)) < p_i).astype(int)
-        part["true_prefers_i"] = np.where(part["du_true"] > 0, 1, np.where(part["du_true"] < 0, 0, np.nan))
+        part["true_prefers_i"] = np.where(
+            part["du_true"] > 0, 1, np.where(part["du_true"] < 0, 0, np.nan))
         parts.append(part)
     out = pd.concat(parts, ignore_index=True)
     out.to_csv(config.OUTPUTS / "choices.csv", index=False)
@@ -66,8 +72,10 @@ def main():
         for f in FEATURES:
             row[f"{f}_differs_%"] = round(100 * (g["dx_" + f] != 0).mean(), 0)
         for name in NOISE:
-            o = out[(out.profile == pid) & (out.noise == name) & out.true_prefers_i.notna()]
-            row[f"agrees_with_best_{name}_%"] = round(100 * (o.chose_i == o.true_prefers_i).mean(), 0) if len(o) else np.nan
+            o = out[(out.profile == pid) & (out.noise == name)
+                    & out.true_prefers_i.notna()]
+            row[f"agrees_with_best_{name}_%"] = round(
+                100 * (o.chose_i == o.true_prefers_i).mean(), 0) if len(o) else np.nan
         rep.append(row)
     with pd.option_context("display.width", 250, "display.max_columns", 30):
         print()
