@@ -1,4 +1,6 @@
 """Central settings. Edit the two input paths below; steps 2-5 read everything from here."""
+import os as _os
+import json as _json
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
@@ -32,3 +34,9 @@ OUTPUTS = ROOT / "outputs"
 MANUAL_GRADIENT_UNKNOWN_IDS = []
 UNKNOWN_GRADIENT_BAN = "all"   # Note-> "all", "not_structures" or "none"
 N_OD_PAIRS = 80
+
+# ---- sensitivity runs: step14_sensitivity.py passes settings through this variable ----
+_over = _json.loads(_os.environ.get("CONFIG_OVERRIDES", "{}"))
+globals().update(_over)
+if "OUTPUTS" in _over:
+    OUTPUTS = ROOT / _over["OUTPUTS"]

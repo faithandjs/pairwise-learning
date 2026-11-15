@@ -25,6 +25,7 @@ Because the true model is  sigmoid(-(w/noise) . (x_i - x_j)), beta should be abo
 weights are -beta, and only their RELATIVE sizes can be recovered (the noise level and the weights scale together),
 so weights are compared after rescaling to sum to 1, over the features that actually vary for that profile.
 """
+import time
 import warnings
 
 import numpy as np
@@ -33,7 +34,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import log_loss
 
 import config
-from common import ban_key
+from common import ban_key, split_journeys
 from profiles import PROFILES
 
 warnings.filterwarnings("ignore")
@@ -97,10 +98,7 @@ def main():
     skipped = set()
 
     for seed in range(N_REPEATS):
-        perm = np.random.default_rng(seed).permutation(all_ods)
-        n = len(perm)
-        n_tr, n_va = int(round(SPLIT[0] * n)), int(round(SPLIT[1] * n))
-        train, val, test = perm[:n_tr], perm[n_tr:n_tr + n_va], perm[n_tr + n_va:]
+        train, val, test = split_journeys(all_ods, seed, SPLIT)
 
         # Note-> reference values come from the TRAINING pairs only
         ref = np.max([S.R[np.isin(S.od, train)].max(axis=0) for S in sets.values()], axis=0)
@@ -130,6 +128,7 @@ def main():
                     if len(np.unique(y[sub])) < 2:
                         continue
                     best = None
+                    t0 = time.perf_counter()
                     for C in C_GRID:
                         m = LogisticRegression(C=C, fit_intercept=False, max_iter=1000).fit(dX[sub], y[sub])
                         if m_va.any() and len(np.unique(y[m_va])) == 2:
@@ -139,13 +138,14 @@ def main():
                         if best is None or loss < best[0]:
                             best = (loss, C, m.coef_[0].copy())
                     _, C, beta = best
+                    fit_seconds = time.perf_counter() - t0
 
                     learned = np.clip(-beta[varying], 0, None)
                     w_hat = learned / learned.sum() if learned.sum() > 0 else np.full(varying.sum(), np.nan)
                     reg, top = select(S, X, test, w, beta)
                     row = dict(seed=seed, profile=pid, profile_name=p["name"], noise=nname, tau=tau, train_frac=frac,
                                n_train_comparisons=len(sub), n_test_comparisons=len(te), n_test_journeys=len(test),
-                               C=C, varying=",".join(f for f, v in zip(FEATURES, varying) if v),
+                               C=C, fit_seconds=fit_seconds, varying=",".join(f for f, v in zip(FEATURES, varying) if v),
                                weight_mae=float(np.nanmean(np.abs(w_hat - w_true))),
                                acc_learned=accuracy(dX[te] @ beta, y[te]),
                                acc_oracle=accuracy(du[te], y[te]),

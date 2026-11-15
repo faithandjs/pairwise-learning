@@ -1,0 +1,7 @@
+ban_set,pairs,mean_routes,pairs_with_5+_routes_%,pairs_with_1_route_%,longest_vs_shortest_median_%,pairs_steep_differs_%,pairs_steps_differs_%,pairs_kerb_differs_%,median_steep_range_m
+grade_12+raised_kerb+steps,80,7.9,100.0,0.0,40.0,100.0,0.0,99.0,26.8
+grade_12+steps,80,7.9,99.0,0.0,41.0,100.0,0.0,99.0,27.4
+grade_20+raised_kerb+steps,80,7.8,100.0,0.0,36.0,0.0,0.0,98.0,0.0
+none,80,8.0,100.0,0.0,42.0,100.0,56.0,99.0,44.5
+raised_kerb+steps,80,8.0,100.0,0.0,40.0,100.0,0.0,99.0,64.2
+steps,80,8.0,100.0,0.0,41.0,100.0,0.0,99.0,48.4

@@ -1,0 +1,124 @@
+6 different bans sets; 7,348 of 8,219 nodes are present in every profile's network and touch a walkable street
+chose 80 pairs (wanted 80), seed 42, at least 500 m apart
+straight-line distance (m): min 501, median 641, max 1004
+shortest route (m):         min 636, median 940, max 1338
+saved outputs/od_pairs.csv (open the lat/lon columns on a map if you want to see them)
+bans set 'grade_12+raised_kerb+steps' ...
+bans set 'raised_kerb+steps' ...
+bans set 'grade_12+steps' ...
+bans set 'steps' ...
+bans set 'grade_20+raised_kerb+steps' ...
+bans set 'none' ...
+
+                   ban_set  pairs  mean_routes  pairs_with_5+_routes_%  pairs_with_1_route_%  longest_vs_shortest_median_%  pairs_steep_differs_%  pairs_steps_differs_%  pairs_kerb_differs_%  median_steep_range_m
+grade_12+raised_kerb+steps     80          7.8                    95.0                   0.0                          42.0                   98.0                    0.0                  99.0                  25.9
+            grade_12+steps     80          7.8                    95.0                   0.0                          42.0                   98.0                    0.0                  99.0                  26.9
+grade_20+raised_kerb+steps     80          7.1                    88.0                   0.0                          39.0                    0.0                    0.0                  96.0                   0.0
+                      none     80          8.0                   100.0                   0.0                          42.0                  100.0                   55.0                  99.0                  46.7
+         raised_kerb+steps     80          8.0                    99.0                   0.0                          42.0                  100.0                    0.0                  99.0                  68.8
+                     steps     80          8.0                   100.0                   0.0                          42.0                  100.0                    0.0                  99.0                  50.0
+
+saved outputs/candidates.csv, candidate_counts.csv, candidate_summary.csv
+10 repeats, split by journey (0.6, 0.2, 0.2), noise {'low': 0.02, 'medium': 0.05, 'high': 0.1}, training shares [0.1, 0.25, 0.5, 1.0]
+reference values (mean over repeats): distance 2844.5, gradient 159.3, steps 26.3, kerb 13.5
+
+All training data, noise = low: mean over 10 repeats, test journeys only
+ profile                      profile_name  acc_learned  acc_oracle  acc_generic  acc_shortest  weight_mae  regret_learned  regret_generic  regret_shortest  top1_learned  top1_generic  top1_shortest
+       1 Self-propelling, effort-sensitive        0.820       0.822        0.804         0.626       0.018           0.000           0.001            0.034         0.938         0.844          0.275
+       2     Powered chair, kerb-sensitive        0.866       0.868        0.816         0.633       0.016           0.000           0.003            0.036         0.981         0.781          0.406
+       3   Low stamina, distance-sensitive        0.827       0.829        0.750         0.758       0.009           0.000           0.007            0.012         0.969         0.625          0.525
+       4    Everyday manual user, balanced        0.880       0.881        0.863         0.667       0.015           0.000           0.001            0.043         0.988         0.894          0.269
+       5             Strict, avoids slopes        0.823       0.822        0.822         0.680       0.014           0.000           0.000            0.018         0.994         1.000          0.525
+       6                Companion-assisted        0.850       0.848        0.835         0.634       0.015           0.000           0.001            0.054         0.931         0.881          0.287
+       7                  Barrier-tolerant        0.855       0.855        0.844         0.684       0.009           0.000           0.002            0.032         0.994         0.794          0.338
+       8          Barrier-averse, no walls        0.877       0.878        0.809         0.602       0.013           0.000           0.007            0.071         0.994         0.781          0.269
+
+All training data, noise = medium: mean over 10 repeats, test journeys only
+ profile                      profile_name  acc_learned  acc_oracle  acc_generic  acc_shortest  weight_mae  regret_learned  regret_generic  regret_shortest  top1_learned  top1_generic  top1_shortest
+       1 Self-propelling, effort-sensitive        0.698       0.697        0.684         0.582       0.027           0.000           0.001            0.034         0.938         0.844          0.275
+       2     Powered chair, kerb-sensitive        0.733       0.736        0.709         0.592       0.020           0.000           0.003            0.036         0.956         0.781          0.406
+       3   Low stamina, distance-sensitive        0.716       0.715        0.678         0.677       0.035           0.000           0.007            0.012         0.912         0.625          0.525
+       4    Everyday manual user, balanced        0.758       0.758        0.747         0.627       0.026           0.000           0.001            0.043         0.950         0.894          0.269
+       5             Strict, avoids slopes        0.690       0.689        0.689         0.625       0.021           0.000           0.000            0.018         0.994         1.000          0.525
+       6                Companion-assisted        0.736       0.731        0.728         0.592       0.028           0.000           0.001            0.054         0.906         0.881          0.287
+       7                  Barrier-tolerant        0.742       0.740        0.735         0.627       0.017           0.000           0.002            0.032         0.975         0.794          0.338
+       8          Barrier-averse, no walls        0.746       0.745        0.718         0.563       0.022           0.000           0.007            0.071         0.944         0.781          0.269
+
+All training data, noise = high: mean over 10 repeats, test journeys only
+ profile                      profile_name  acc_learned  acc_oracle  acc_generic  acc_shortest  weight_mae  regret_learned  regret_generic  regret_shortest  top1_learned  top1_generic  top1_shortest
+       1 Self-propelling, effort-sensitive        0.616       0.612        0.614         0.551       0.042           0.000           0.001            0.034         0.906         0.844          0.275
+       2     Powered chair, kerb-sensitive        0.649       0.650        0.630         0.562       0.032           0.000           0.003            0.036         0.950         0.781          0.406
+       3   Low stamina, distance-sensitive        0.618       0.620        0.589         0.607       0.042           0.000           0.007            0.012         0.906         0.625          0.525
+       4    Everyday manual user, balanced        0.658       0.659        0.656         0.582       0.055           0.000           0.001            0.043         0.931         0.894          0.269
+       5             Strict, avoids slopes        0.591       0.588        0.588         0.561       0.047           0.000           0.000            0.018         0.975         1.000          0.525
+       6                Companion-assisted        0.640       0.640        0.636         0.546       0.034           0.000           0.001            0.054         0.900         0.881          0.287
+       7                  Barrier-tolerant        0.647       0.644        0.645         0.586       0.035           0.000           0.002            0.032         0.919         0.794          0.338
+       8          Barrier-averse, no walls        0.660       0.661        0.644         0.544       0.042           0.001           0.007            0.071         0.906         0.781          0.269
+
+Learning curve (mean over profiles and repeats): accuracy on test choices and weight error
+ noise  train_frac  acc_learned  acc_oracle  acc_generic  acc_shortest  weight_mae
+  high       0.100        0.628       0.634        0.625         0.567       0.123
+  high       0.250        0.633       0.634        0.625         0.567       0.081
+  high       0.500        0.634       0.634        0.625         0.567       0.055
+  high       1.000        0.635       0.634        0.625         0.567       0.041
+   low       0.100        0.846       0.850        0.818         0.661       0.037
+   low       0.250        0.849       0.850        0.818         0.661       0.025
+   low       0.500        0.850       0.850        0.818         0.661       0.018
+   low       1.000        0.850       0.850        0.818         0.661       0.014
+medium       0.100        0.721       0.726        0.711         0.611       0.068
+medium       0.250        0.725       0.726        0.711         0.611       0.045
+medium       0.500        0.726       0.726        0.711         0.611       0.034
+medium       1.000        0.727       0.726        0.711         0.611       0.025
+
+saved outputs/learner_results.csv and outputs/learner_weights.csv
+8,960 routes saved to outputs/routing_results.csv. Check: routes that use a banned segment although the method respects bans: 0 (should be 0)
+
+All profiles, all repeats, test journeys only (learned shown at noise = medium):
+         method  routes  found_pct  violation_pct  distance_m  steep_m  steps_m  kerb_units  max_grade_pct  climb_m  unknown_grad_m  regret  ms_per_route
+         oracle    1280    100.000          0.000    1119.490    1.347    0.000       0.287          5.143    9.899           0.989   0.000         2.129
+        learned    1280    100.000          0.000    1122.687    1.430    0.000       0.277          5.160    9.942           0.960   0.000         2.137
+        generic    1280    100.000          0.000    1118.749    0.780    0.000       0.250          4.826    9.849           0.689   0.002         2.088
+  shortest_bans    1280    100.000          0.000    1012.633   15.368    0.787       2.438          8.292    9.943           4.288   0.069         2.287
+shortest_nobans    1280    100.000         45.547     941.267   19.993    2.098       2.651         10.311   10.001           7.263   0.077         2.506
+
+Mean regret by profile (lower is better; 0 = the oracle's route):
+method   oracle  learned  generic  shortest_bans  shortest_nobans
+profile                                                          
+1         0.000    0.000    0.000          0.061            0.090
+2         0.000    0.000    0.001          0.073            0.111
+3         0.000    0.000    0.006          0.032            0.028
+4         0.000    0.000    0.000          0.088            0.084
+5         0.000    0.000    0.000          0.049            0.053
+6         0.000    0.000    0.000          0.085            0.085
+7         0.000    0.000    0.002          0.056            0.056
+8         0.000    0.000    0.003          0.108            0.108
+
+Share of routes that break the profile's own bans, by profile (%):
+method   oracle  learned  generic  shortest_bans  shortest_nobans
+profile                                                          
+1         0.000    0.000    0.000          0.000           94.400
+2         0.000    0.000    0.000          0.000           77.500
+3         0.000    0.000    0.000          0.000           86.900
+4         0.000    0.000    0.000          0.000           11.200
+5         0.000    0.000    0.000          0.000           94.400
+6         0.000    0.000    0.000          0.000            0.000
+7         0.000    0.000    0.000          0.000            0.000
+8         0.000    0.000    0.000          0.000            0.000
+
+shortest_nobans: share of routes breaking each ban rule, by profile (%; blank = the profile has no such rule):
+         steps  raised_kerb  steep  unknown_gradient
+profile                                             
+1       11.200       72.500 86.900            20.000
+2       11.200       72.500                         
+3       11.200              86.900            20.000
+4       11.200                                      
+5       11.200       72.500 94.400            20.000
+6                                                   
+7                                                   
+8                                                   
+
+Learned router, mean regret by noise level:
+noise
+high     0.001
+low      0.000
+medium   0.000
